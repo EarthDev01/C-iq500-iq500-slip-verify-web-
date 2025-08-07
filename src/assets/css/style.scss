@@ -1,0 +1,12 @@
+.scroll-hide::-webkit-scrollbar {
+  display: none;
+}
+.scroll-hide {
+  -ms-overflow-style: none; /* IE, Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.label-white {
+  .ant-form-item .ant-form-item-label > label {
+    color: white;
+  }
+}
