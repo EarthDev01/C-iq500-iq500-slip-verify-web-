@@ -1,19 +1,18 @@
 // src/plugins/axios.ts
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
+import type { AxiosInstance } from "axios";
+import useStoreApp from '@/stores/userStore'
 
-const apiClient = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL,
-    timeout: 10000,
-    headers: {
-        'Content-Type': 'application/json',
-    },
+const storeApp = useStoreApp();
+const apiClient: AxiosInstance = axios.create({
+    baseURL: "https://chat-ms-api-dev.thesonicblue.xyz/api",
 })
 
 // Interceptor: เพิ่ม token, จัดการ error
 apiClient.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token')
-        if (token) {
+        if (config.headers && token) {
             config.headers.Authorization = `Bearer ${token}`
         }
         return config
@@ -22,14 +21,21 @@ apiClient.interceptors.request.use(
 )
 
 apiClient.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        // แสดง error หรือจัดการ global error
-        if (error.response?.status === 401) {
-            // ลบ token, logout หรือ redirect
-            console.warn('Unauthorized - maybe logout')
+    (res) => {
+        if (res?.data?.code === 401) {
+            localStorage.removeItem("auth_token");
         }
-        return Promise.reject(error)
+        return res;
+    },
+    (err: AxiosError) => {
+        if (
+            err.response?.status === 400 ||
+            err.response?.status === 409 ||
+            err.response?.status === 500
+        ) {
+            return err.response;
+        }
+        return Promise.reject(err)
     }
 )
 

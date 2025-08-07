@@ -1,10 +1,11 @@
 import api from '@/plugins/axios'
-import type { LoginPayload, LoginResponse } from '@/types/login'
+import type { LoginPayload } from '@/types/login'
 
-export const login = (payload: LoginPayload) => {
-    return api.post<LoginResponse>('/auth/login', payload)
-}
-
-export const getProfile = () => {
-    return api.get('/auth/profile')
-}
+export const login = async (payload: LoginPayload) => {
+    try {
+        const { data } = await api.post("/login", payload);
+        return data;
+    } catch (error) {
+        console.error("Login error:", error);
+    }
+};
